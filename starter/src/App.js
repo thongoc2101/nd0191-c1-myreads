@@ -1,8 +1,11 @@
 import "./App.css";
 import { useEffect, useState } from "react";
 import { getAll, search, update } from "./BooksAPI";
+import { Link } from "react-router-dom";
 
 function App() {
+  const [allBookList, setAllBookList] = useState([]);
+
   const [showSearchPage, setShowSearchpage] = useState(false);
   const [currentlyReadingList, setCurrentlyReadingList] = useState([]);
   const [wantToReadList, setWantToReadList] = useState([]);
@@ -16,6 +19,9 @@ function App() {
 
   const getAllBooks = () => {
     getAll().then((res) => {
+      // set all book list
+      setAllBookList(res);
+
       setCurrentlyReadingList(res.filter((item) => item.shelf === 'currentlyReading'));
       setWantToReadList(res.filter((item) => item.shelf === 'wantToRead'));
       setReadBookList(res.filter((item) => item.shelf === 'read'));
@@ -23,9 +29,18 @@ function App() {
   }
 
   const searchBook = (e) => {
-    search(e.target.value).then((res) => {
-      setSearchBookList(res);
-    })
+    if (e.target.value) {
+      search(e.target?.value).then((res) => {
+        res.forEach((item) => {
+          const bookItem = allBookList.find((book) => book.id === item.id);
+
+          if (bookItem) {
+            item.shelf = bookItem.shelf;
+          }
+        })
+        setSearchBookList(res);
+      })
+    }
   }
 
   const updateBook = (e, book) => {
@@ -52,17 +67,23 @@ function App() {
     )
   }
 
+  const handleClickAddABook = () => {
+    setShowSearchpage(!showSearchPage)
+    setSearchBookList([]);
+  }
+
   return (
     <div className="app">
       {showSearchPage ? (
         <div className="search-books">
           <div className="search-books-bar">
-            <a
+            <Link
+              to="/"
               className="close-search"
               onClick={() => setShowSearchpage(!showSearchPage)}
             >
               Close
-            </a>
+            </Link>
             <div className="search-books-input-wrapper">
               <input
                 type="text"
@@ -74,7 +95,7 @@ function App() {
           <div className="search-books-results">
             <ol className="books-grid">
               {
-                searchBookList?.map((book) => {
+                searchBookList?.length > 0 && searchBookList.map((book) => {
                   return (
                     <li key={book?.id}>
                       <div className="book">
@@ -198,8 +219,9 @@ function App() {
               </div>
             </div>
           </div>
+
           <div className="open-search">
-            <a onClick={() => setShowSearchpage(!showSearchPage)}>Add a book</a>
+            <Link to="/search" onClick={() => handleClickAddABook()}>Add a book</Link>
           </div>
         </div>
       )}
