@@ -34,10 +34,7 @@ function App() {
         if (res && res.length > 0) {
           res.forEach((item) => {
             const bookItem = allBookList.find((book) => book.id === item.id);
-
-            if (bookItem) {
-              item.shelf = bookItem.shelf;
-            }
+            item.shelf = bookItem ? bookItem.shelf : 'none';
           })
           setSearchBookList(res);
         } else {
