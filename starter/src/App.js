@@ -31,14 +31,18 @@ function App() {
   const searchBook = (e) => {
     if (e.target.value) {
       search(e.target?.value).then((res) => {
-        res.forEach((item) => {
-          const bookItem = allBookList.find((book) => book.id === item.id);
+        if (res && res.length > 0) {
+          res.forEach((item) => {
+            const bookItem = allBookList.find((book) => book.id === item.id);
 
-          if (bookItem) {
-            item.shelf = bookItem.shelf;
-          }
-        })
-        setSearchBookList(res);
+            if (bookItem) {
+              item.shelf = bookItem.shelf;
+            }
+          })
+          setSearchBookList(res);
+        } else {
+          setSearchBookList([]);
+        }
       })
     }
   }
